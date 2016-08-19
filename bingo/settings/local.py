@@ -16,9 +16,6 @@ from .base import *  # pylint: disable=unused-wildcard-import,wildcard-import
 
 DEBUG = True
 
-TEMPLATE_DEBUG = DEBUG
-
-
 # Save media files to the user's Sites folder.
 
 MEDIA_ROOT = os.path.expanduser(os.path.join("~/Sites", SITE_DOMAIN, "media"))
@@ -34,11 +31,7 @@ PREPEND_WWW = False
 
 
 # Disable the template cache for development.
-
-TEMPLATE_LOADERS = (
-    "django.template.loaders.filesystem.Loader",
-    "django.template.loaders.app_directories.Loader",
-)
+# TEMPLATES[0]['OPTIONS']['loaders'] = []
 
 
 # Optional separate database settings

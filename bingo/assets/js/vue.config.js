@@ -3,7 +3,6 @@ import Vue from 'vue'
 import components from './components'
 
 import store from './store'
-import {toggleMobileNav} from './components/mobile-nav/actions'
 
 Vue.filter('toString', (val) => {
   return String(val)
@@ -16,13 +15,9 @@ export default {
   store,
 
   vuex: {
-    getters: {
-      mobileNav: (state) => state.mobileNav
-    },
+    getters: {},
 
-    actions: {
-      toggleMobileNav
-    }
+    actions: {}
   },
 
   events: {
