@@ -20,7 +20,9 @@ socket.onmessage = function(e) {
 
 socket.onopen = function() {
   console.log('socket opened')
-  socket.send('REQUEST_GAMES');
+  socket.send(JSON.stringify({
+    'text': 'REQUEST_GAMES'
+  }));
 }
 </script>
 {% endblock %}
