@@ -1,83 +1,34 @@
-from channels import Group
-from channels.auth import channel_session
+from channels.generic.websockets import JsonWebsocketConsumer
 
 
-# Connected to websocket.connect
-@channel_session
-def game_listing_connect(message):
-    print 'START game_listing_connect'
+class GameListingConsumer(JsonWebsocketConsumer):
 
-    # Add them to the right group
-    print 'adding to group'
-    Group('game-listing').add(message.reply_channel)
+    channel_session = True
 
-    # Let them know what the current list of games are.
-    print 'sending current games'
-    message.reply_channel.send({
-        'current_games': [
-            '44802c50-9d24-417f-95f9-5cd8ea0db551'
-        ]
-    })
+    def connection_groups(self, **kwargs):
+        return ['game-listing']
 
-    Group('game-listing').send({
-        'current_games': [
-            '44802c50-9d24-417f-95f9-5cd8ea0db552'
-        ]
-    })
-
-    print 'END game_listing_connect'
-    print ''
+    def connect(self, message, **kwargs):
+        self.send({
+            'current_games': [
+                '44802c50-9d24-417f-95f9-5cd8ea0db551'
+            ]
+        })
 
 
-# Connected to websocket.receive
-@channel_session
-def game_listing_message(message):
-    print 'START game_listing_message'
+class GameDetailConsumer(JsonWebsocketConsumer):
 
-    print message.content
-    print message['text']
+    channel_session = True
 
-    message.reply_channel.send({'text': 'PONG'})
-    print 'sent reply back', message.reply_channel
+    def connection_groups(self, **kwargs):
+        return ['game-detail-{}'.format(kwargs['room'])]
 
-    Group('game-listing').send({
-        "text": 'testing..',
-    })
-
-    print 'END game_listing_message'
-    print ''
-
-
-# Connected to websocket.disconnect
-@channel_session
-def game_listing_disconnect(message):
-    print 'game_listing_disconnect'
-
-    Group('game-listing').discard(message.reply_channel)
-
-
-# Connected to websocket.connect
-@channel_session
-def game_detail_connect(message):
-    print 'game_detail_connect'
-
-    # Add them to the right group
-    Group('game-').add(message.reply_channel)
-
-
-# Connected to websocket.receive
-@channel_session
-def game_detail_message(message):
-    print 'game_detail_message'
-
-    Group('game-').send({
-        "text": message['text'],
-    })
-
-
-# Connected to websocket.disconnect
-@channel_session
-def game_detail_disconnect(message):
-    print 'game_detail_disconnect'
-
-    Group('game-').discard(message.reply_channel)
+    def connect(self, message, **kwargs):
+        # Send game details: numbers already picked, time started etc.
+        self.send({
+            'current_numbers': {
+                'value': '66',
+                'order': '1',
+                'timestamp': '2016-08-01T17:34:00+01:00'
+            }
+        })
