@@ -1,11 +1,14 @@
 .lst-Items {
+  margin-bottom: 15px;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
 }
 
 .lst-Item {
-  width: calc(100% / 3);
+  width: calc((100% / 5) - 15px);
+  padding: 15px;
+  margin-top: 15px;
   height: 350px;
   border: 1px solid #000;
 }

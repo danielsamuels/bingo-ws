@@ -20,7 +20,7 @@ class Game(models.Model):
     )
 
     class Meta:
-        ordering = ['start_time']
+        ordering = ['-start_time']
 
 
 class Number(models.Model):

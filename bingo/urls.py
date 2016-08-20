@@ -8,7 +8,8 @@ admin.autodiscover()
 
 urlpatterns = [
     url(r"^admin/", include(admin.site.urls)),
-    url(r'^$', generic.TemplateView.as_view(template_name='game_listing.html'))
+    url(r'^$', generic.TemplateView.as_view(template_name='game_listing.html')),
+    url(r'^([a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[ab89][a-f0-9]{3}-[a-f0-9]{12})/$', generic.TemplateView.as_view(template_name='game_detail.html')),
 ] + static(
     settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
 )

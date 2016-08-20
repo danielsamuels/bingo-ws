@@ -19,6 +19,13 @@ def get_current_games():
             start_time=now() + timedelta(minutes=3)
         )
 
+    # Expire any games which weren't played.
+    Game.objects.filter(
+        start_time__lte=now() - timedelta(minutes=60)
+    ).update(
+        end_time=now()
+    )
+
     current_games = [
         {
             'id': str(game.id),

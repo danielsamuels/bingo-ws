@@ -65,6 +65,10 @@ STATIC_ROOT = "/var/www/bingo_static"
 
 STATIC_URL = "/static/"
 
+NODE_MODULES_ROOT = "/var/www/bingo_static"
+
+NODE_MODULES_URL = "/static/"
+
 # Locale settings.
 
 TIME_ZONE = "Europe/London"
@@ -106,6 +110,7 @@ INSTALLED_APPS = [
 # Additional static file locations.
 
 STATICFILES_DIRS = (
+    os.path.join(SITE_ROOT, "assets"),  # For webpack_loader
     os.path.join(SITE_ROOT, "static"),
 )
 
@@ -114,6 +119,13 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'build/',
+        'STATS_FILE': os.path.join(BASE_ROOT, 'webpack-stats.json')
+    }
+}
 
 COMPRESS_CSS_FILTERS = [
     'compressor.filters.css_default.CssAbsoluteFilter',
