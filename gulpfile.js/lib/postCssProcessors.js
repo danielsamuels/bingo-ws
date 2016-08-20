@@ -11,10 +11,19 @@ module.exports = [
     glob: path.join(__dirname, '../../bingo', 'assets', 'css', 'functions', '*.js')
   }),
 
-  require('postcss-custom-properties'),
-  require('postcss-custom-media'),
-  require('postcss-media-minmax'),
-  require('postcss-custom-selectors'),
+  require('postcss-cssnext')({
+    features: {
+      autoprefixer: false,
+      calc: false,
+      nesting: false,
+      rem: false
+    }
+  }),
+  require('rucksack-css')({
+    autoprefixer: false,
+    hexRGBA: false
+  }),
+
   // Niceties
   require('postcss-assets')({
     basePath: 'bingo/assets/',
@@ -26,9 +35,6 @@ module.exports = [
   }),
   require('postcss-brand-colors'),
   require('postcss-property-lookup'),
-  require('postcss-lh')({
-    rhythmUnit: 'vr'
-  }),
   require('postcss-pxtorem'),
   require('postcss-will-change'),
   require('postcss-font-awesome'),
@@ -36,6 +42,6 @@ module.exports = [
   require('postcss-calc'),
   require('postcss-hexrgba'),
   require('autoprefixer')({
-    browsers: ['ie 11', 'last 2 versions']
+    browsers: ['ie 11', 'last 3 versions']
   }),
 ];

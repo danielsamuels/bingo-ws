@@ -10,14 +10,14 @@ module.exports = {
     'color-no-invalid-hex': true,
 
     // Font
-    'font-family-name-quotes': 'single-where-required',
+    'font-family-name-quotes': 'always-where-required',
     'font-weight-notation': 'numeric',
 
     // Number
     'number-leading-zero': 'always',
     'number-max-precision': 3,
     'number-no-trailing-zeros': true,
-    'number-zero-length-no-unit': true,
+    'length-zero-no-unit': true,
 
     // Function
     'function-calc-no-unspaced-operator': true,
@@ -148,7 +148,9 @@ module.exports = {
           'cursor',
           'fill',
           'mix-blend-mode',
+          'object-fit',
           'opacity',
+          'outline',
           'overflow',
           'overflow-x',
           'overflow-y',
@@ -187,7 +189,6 @@ module.exports = {
     'block-opening-brace-space-before': 'always',
 
     // Selector
-    'selector-class-pattern': '^[a-z]([a-z0-9]){1,3}-[A-Z][a-zA-Z0-9]+(_[A-Z][a-zA-Z0-9]+)?(-[a-z]([a-zA-Z0-9-]+)?[a-z0-9]+)?$',
     'selector-combinator-space-after': 'always',
     'selector-combinator-space-before': 'always',
     'selector-no-id': true,

@@ -27,15 +27,16 @@ module.exports = function(env) {
     ],
     resolve: {
       root: jsSrc,
-      extensions: [''].concat(extensions)
+      extensions: [''].concat(extensions),
+      alias: {
+        'eventEmitter/EventEmitter': 'wolfy87-eventemitter/EventEmitter',
+        'get-style-property/get-style-property': 'desandro-get-style-property/get-style-property',
+        'matches-selector/matches-selector': 'desandro-matches-selector/matches-selector',
+        'classie/classie': 'desandro-classie/classie'
+      }
     },
     module: {
       preLoaders: [
-        {
-          test: /\.vue$/,
-          loader: 'eslint',
-          exclude: /(node_modules|bower_components|vendor)/
-        },
         {
           test: /\.js$/,
           loader: 'eslint',
@@ -56,6 +57,17 @@ module.exports = function(env) {
         {
           test: /\.json$/,
           loader: 'json'
+        },
+        {
+          test: /\.(png|jpg|gif)$/,
+          loader: 'url',
+          query: {
+            // limit for base64 inlining in bytes
+            limit: 10000,
+            // custom naming format if file is larger than
+            // the threshold
+            name: '[name].[ext]'
+          }
         }
       ]
     },
@@ -66,10 +78,7 @@ module.exports = function(env) {
         css: ExtractText.extract('css')
       }
     },
-    babel: config.tasks.js.babel,
-    eslint: {
-      formatter: require('eslint-friendly-formatter')
-    }
+    babel: config.tasks.js.babel
   }
 
   if(env === 'development') {
