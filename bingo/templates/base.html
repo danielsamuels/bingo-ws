@@ -1,4 +1,5 @@
 {% load compress site static %}
+{% load render_bundle from webpack_loader %}
 
 <!DOCTYPE html>
 <html>
@@ -51,23 +52,13 @@
       </div>
     {% endblock %}
 
-    {% comment %}
     {% compress js %}
       {% block compressed_js_first %}{% endblock %}
 
-      {# Get the site navigation as JSON #}
-      {% navigation_json pages.homepage.navigation as nav %}
-      <script>
-        // Set the navigation so our Vue file can access it
-        window.navigationData = {{ nav | safe }};
-      </script>
-
       {% render_bundle 'shared' 'js' %}
       {% render_bundle 'app' 'js' %}
-      <script src="/static/flexible-images/flexible-images.js"></script>
 
       {% block compressed_js_last %}{% endblock %}
     {% endcompress %}
-    {% endcomment %}
   </body>
 </html>

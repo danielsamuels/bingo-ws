@@ -65,6 +65,17 @@ STATIC_ROOT = "/var/www/bingo_static"
 
 STATIC_URL = "/static/"
 
+# Locale settings.
+
+TIME_ZONE = "Europe/London"
+
+LANGUAGE_CODE = "en-gb"
+
+USE_I18N = False
+
+USE_L10N = True
+
+USE_TZ = True
 # Auto-discovery of project location.
 
 SITE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -88,6 +99,8 @@ INSTALLED_APPS = [
     "bingo.apps.games",
     "bingo.apps.site",
     "channels",
+
+    "webpack_loader",
 ]
 
 # Additional static file locations.
