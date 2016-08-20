@@ -44,11 +44,13 @@ DATABASES = {
 # Channels config
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
         "ROUTING": "bingo.routing.channel_routing",
     },
 }
-
 
 # Absolute path to the directory where all uploaded media files are stored.
 
@@ -98,6 +100,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.sitemaps",
 
+    "django_extensions",
     "compressor",
 
     "bingo.apps.games",

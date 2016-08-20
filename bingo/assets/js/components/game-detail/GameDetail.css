@@ -1,0 +1,107 @@
+.dtl-Columns {
+  @include Grid_Row();
+  display: flex;
+  flex-direction: row;
+}
+
+.dtl-Column {
+  @include Grid_Column();
+
+  &.dtl-Column-called {
+    flex-shrink: 0;
+  }
+}
+
+.gm-Cards_Title {
+  font-size: 24px;
+  text-align: center;
+  display: block;
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+
+.gm-Cards_Items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.gm-Cards_Item {
+  margin-bottom: 15px;
+  width: auto;
+}
+
+.gm-Cards_TableCell {
+  border: 1px solid #000;
+  text-align: center;
+  font-weight: bold;
+  width: 50px;
+  height: @width;
+  background-color: #fff;
+  user-select: none;
+  position: relative;
+}
+
+.gm-Cards_Label {
+  cursor: pointer;
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  line-height: 50px;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+
+  .gm-Cards_Checkbox:checked + & {
+    color: #fff;
+    pointer-events: none;
+  }
+}
+
+.gm-Cards_Checkbox {
+  appearance: none;
+  outline: none;
+  position: absolute;
+  pointer-events: none;
+  width: 75%;
+  height: 75%;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+
+  &:checked {
+    background-color: #f00;
+  }
+}
+
+.dtl-LastCalled_Outer {
+  margin: 0 auto;
+  text-align: center;
+  padding: 30px;
+}
+
+.dtl-LastCalled_Title {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.dtl-LastCalled_Value {
+  font-size: 120px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.dtl-Called {
+  margin-bottom: 30px;
+  width: auto;
+}
+
+.dlt-Called_Cell {
+  background-color: #fff;
+  border: 1px solid #000;
+  width: 50px;
+  height: @width;
+}

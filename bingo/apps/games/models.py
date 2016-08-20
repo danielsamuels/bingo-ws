@@ -1,4 +1,5 @@
 import uuid
+import random
 
 from django.db import models
 from django.core import validators
@@ -18,6 +19,26 @@ class Game(models.Model):
         blank=True,
         null=True,
     )
+
+    def numbers_called(self):
+        return [number.serialize() for number in self.number_set.all()]
+
+    def call_number(self):
+        random.seed(str(self.id) + self.start_time.isoformat())
+        choices = range(1, 91)
+
+        # Remove any choices which have already been called.
+        called = self.number_set.all().values_list('value', flat=True)
+
+        valid_choices = [value for value in choices if value not in called]
+
+        call_order = list(self.number_set.all())[-1].call_order if self.number_set.count() > 0 else 1
+
+        return Number.objects.create(
+            game=self,
+            value=random.choice(valid_choices),
+            call_order=call_order
+        ).serialize()
 
     class Meta:
         ordering = ['-start_time']
@@ -45,5 +66,13 @@ class Number(models.Model):
         auto_now_add=True,
     )
 
+    def serialize(self):
+        return {
+            'value': self.value,
+            'call_order': self.call_order,
+            'timestamp': self.timestamp.isoformat(),
+        }
+
     class Meta:
         ordering = ['call_order']
+        unique_together = [['game', 'value']]
