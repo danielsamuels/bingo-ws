@@ -1,0 +1,11 @@
+.lst-Items {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.lst-Item {
+  width: calc(100% / 3);
+  height: 350px;
+  border: 1px solid #000;
+}

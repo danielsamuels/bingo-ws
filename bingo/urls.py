@@ -8,7 +8,7 @@ admin.autodiscover()
 
 urlpatterns = [
     url(r"^admin/", include(admin.site.urls)),
-    url(r'^$', generic.TemplateView.as_view(template_name='chat.html'))
+    url(r'^$', generic.TemplateView.as_view(template_name='game_listing.html'))
 ] + static(
     settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
 )

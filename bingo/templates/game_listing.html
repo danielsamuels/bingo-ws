@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% comment %}
+One Group for handling the broadcast of available rooms, connected to when on the listing page.
+One Group per game room, handles the communication of bingo numbers from game to player.
+{% endcomment %}
+
+{% block main %}
+  <game-listing></game-listing>
+{% endblock %}
