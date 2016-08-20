@@ -1,7 +1,11 @@
-from channels.generic.websockets import JsonWebsocketConsumer
-from django.utils.timezone import now
-from .apps.games.models import Game
+import time
 from datetime import timedelta
+
+from channels.generic.websockets import JsonWebsocketConsumer
+from django.db import IntegrityError
+from django.utils.timezone import now
+
+from .models import Game, Number
 
 GAME_LISTING_CHANNEL = 'game-listing'
 GAME_DETAIL_PREFIX = 'game-detail-'
@@ -60,11 +64,25 @@ class GameDetailConsumer(JsonWebsocketConsumer):
         return [GAME_DETAIL_PREFIX + kwargs['room']]
 
     def connect(self, message, **kwargs):
+        game = Game.objects.get(id=kwargs['room'])
+
         # Send game details: numbers already picked, time started etc.
         self.send({
-            'current_numbers': {
-                'value': '66',
-                'order': '1',
-                'timestamp': '2016-08-01T17:34:00+01:00'
-            }
+            'type': 'CONNECT',
+            'start_time': game.start_time.isoformat(),
+            'numbers_called': game.numbers_called()
         })
+
+        numbers_called = game.numbers_called()
+        while len(numbers_called) < 90:
+            time.sleep(10)
+
+            self.group_send(
+                GAME_DETAIL_PREFIX + kwargs['room'],
+                {
+                    'type': 'NUMBER_DRAWN',
+                    'number': game.call_number()
+                }
+            )
+
+            numbers_called = game.numbers_called()
