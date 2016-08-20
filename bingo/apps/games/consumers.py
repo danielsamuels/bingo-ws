@@ -74,8 +74,9 @@ class GameDetailConsumer(JsonWebsocketConsumer):
         })
 
         numbers_called = game.numbers_called()
+
         while len(numbers_called) < 90:
-            time.sleep(10)
+            time.sleep(0.25)
 
             self.group_send(
                 GAME_DETAIL_PREFIX + kwargs['room'],
@@ -86,3 +87,5 @@ class GameDetailConsumer(JsonWebsocketConsumer):
             )
 
             numbers_called = game.numbers_called()
+
+        game.number_set.all().delete()

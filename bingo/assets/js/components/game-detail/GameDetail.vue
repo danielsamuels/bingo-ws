@@ -13,7 +13,9 @@
 
       <table class="dtl-Called">
         <tr v-for="row in available_numbers">
-          <td align="center" v-for="number in row" class="dlt-Called_Cell">
+          <td align="center" v-for="number in row" class="dlt-Called_Cell" :class="{
+            'dlt-Called_Cell-called': numbersCalledNumeric.indexOf(number.value) !== -1
+          }">
             {{ number.value }}
           </td>
         </tr>
@@ -26,11 +28,18 @@
         <h1 class="gm-Cards_Title">Your cards</h1>
 
         <div class="gm-Cards_Items">
-          <table v-for="(index, card) in player_cards" class="gm-Cards_Item" style="">
-            <tr v-for="row in 3">
+          <table class="gm-Cards_Item" style="">
+            <tr v-for="row in 18">
               <td v-for="column in 9" class="gm-Cards_TableCell">
+                <!-- For this column, take the slice and see if this row is in there -->
+                <!-- {{ column * 10 }}, {{ (column + 1) * 10 }}<br> -->
+                <!-- {{ playerCards.slice(column * 10, (column + 1) * 10) }} -->
+                <span v-if="playerCards.slice(column * 10, (column + 1) * 10).indexOf(row) !== -1">x</span>
+
+                <!--
                 <input v-if="card[column][row] !== emptyValue" type="checkbox" id="{{ index }}-{{ row }}-{{ column }}" class="gm-Cards_Checkbox">
                 <label v-if="card[column][row] !== emptyValue" for="{{ index }}-{{ row }}-{{ column }}" class="gm-Cards_Label">{{ card[column][row] }}</label>
+                -->
               </td>
             </tr>
           </table>
@@ -73,7 +82,8 @@ export default {
       numCards: 6,
       socket: null,
       startTime: null,
-      emptyValue: '',
+      emptyValue: '-----',
+      speechEnabled: false,
       bingoLingo: {
         1: "Number One, Kelly's Eye",
         2: "One Little Duck, Number Two",
@@ -205,7 +215,79 @@ export default {
       return this.numbersCalled[this.numbersCalled.length - 1].value
     },
 
-    player_cards () {
+    numbersCalledNumeric () {
+      let numbers = []
+
+      this.numbersCalled.forEach((item) => {
+        numbers.push(item.value)
+      })
+
+      return numbers
+    },
+
+    playerCards () {
+      console.log('player_cards')
+
+      let cards = [
+        [[], [], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], [], []],
+        [[], [], [], [], [], [], [], [], []],
+      ]
+
+      // For each column, figure out which rows are going to get values.
+      // At this point we don't care what the values _are_, just whether
+      // a row should have one or not.
+      //
+      // For the first five columns, it's easy -- all rows are eligible, so
+      // just choose 10 of the 18.  After that, we need to remove rows which
+      // have already been selected 5 times.
+
+      let allChosenRows = []
+      let chosenRowCounter = {}
+
+      for (let column = 1; column <= 9; column++) {
+        let chosenRows = []
+
+        // Choose our 10 rows for this column.
+        for (let i = 1; i <= 10; i++) {
+          let availableRows = this.range(0, 17)
+
+          // Are there any values which appear 5 times in allChosenRows?
+          const fullRows = Object.keys(chosenRowCounter).filter((element) => chosenRowCounter[element] >= 5)
+
+          if (fullRows.length > 0) {
+            availableRows = availableRows.filter((element) => fullRows.indexOf(element.toString()) === -1)
+          }
+
+          // Remove any rows which have already been selected for this column.
+          availableRows = availableRows.filter((element) => chosenRows.indexOf(element) === -1)
+
+          const chosenRow = availableRows.removeRandomElement()
+          chosenRows.push(chosenRow)
+
+          if (chosenRowCounter[chosenRow] === undefined) {
+            chosenRowCounter[chosenRow] = 1
+          } else {
+            chosenRowCounter[chosenRow]++
+          }
+        }
+
+        allChosenRows.push(...chosenRows)
+      }
+
+      // We may have some rows with less than 5 items.
+      // We may have some card columns which are empty.
+
+      // Now we need to populate the cards with the marks.
+      console.log(allChosenRows)
+      console.log(allChosenRows.length)
+      return allChosenRows
+    },
+
+    player_cards2 () {
       let cards = [
         [
           [], [], [], [], [], [], [], [], []
@@ -261,6 +343,26 @@ export default {
               return
             }
 
+            // If we were to insert an item into this column, which row would it fall into?
+            const prospectiveRow = card[column - 1].length
+
+            // Are there already 5 items in this row?
+            let rowItems = 0
+
+            card.forEach((cardColumn) => {
+              if (cardColumn.filter(Number).length < prospectiveRow + 1) {
+                return
+              }
+
+              if (cardColumn[prospectiveRow] !== this.emptyValue) {
+                rowItems++
+              }
+            })
+
+            if (rowItems >= 5) {
+              return
+            }
+
             if (trueLength < smallestValue) {
               smallestValue = trueLength
               smallestCards = [index]
@@ -270,7 +372,15 @@ export default {
           })
 
           // Add to a random card.
-          cards[smallestCards.randomElement()][column - 1].push(value)
+          const randEl = smallestCards.randomElement()
+
+          if (randEl === undefined) {
+            // We need to look again..
+            console.error(`Nowhere to put ${value}`)
+          } else {
+            console.log(`randEl: ${randEl}, smallestCards: ${smallestCards}`)
+            cards[randEl][column - 1].push(value)
+          }
         }
       }
 
@@ -291,8 +401,10 @@ export default {
       } else if (data.type === 'NUMBER_DRAWN') {
         this.numbersCalled.push(data.number)
 
-        var msg = new SpeechSynthesisUtterance(this.bingoLingo[data.number.value]);
-        window.speechSynthesis.speak(msg);
+        if (this.speechEnabled) {
+          var msg = new SpeechSynthesisUtterance(this.bingoLingo[data.number.value]);
+          window.speechSynthesis.speak(msg);
+        }
       }
 
     },

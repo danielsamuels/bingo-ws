@@ -24,15 +24,15 @@ class Game(models.Model):
         return [number.serialize() for number in self.number_set.all()]
 
     def call_number(self):
-        random.seed(str(self.id) + self.start_time.isoformat())
+        call_order = list(self.number_set.all())[-1].call_order + 1 if self.number_set.count() > 0 else 1
+        random.seed(self.start_time.isoformat() + str(self.id) + str(call_order))
+
         choices = range(1, 91)
 
         # Remove any choices which have already been called.
         called = self.number_set.all().values_list('value', flat=True)
 
         valid_choices = [value for value in choices if value not in called]
-
-        call_order = list(self.number_set.all())[-1].call_order if self.number_set.count() > 0 else 1
 
         return Number.objects.create(
             game=self,
