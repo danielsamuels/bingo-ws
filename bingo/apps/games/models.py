@@ -14,6 +14,14 @@ class Game(models.Model):
 
     start_time = models.DateTimeField()
 
+    end_time = models.DateTimeField(
+        blank=True,
+        null=True,
+    )
+
+    class Meta:
+        ordering = ['start_time']
+
 
 class Number(models.Model):
 
