@@ -1,5 +1,7 @@
 <template>
   <!-- Numbers called -->
+  {{ validatePlayerCards }}
+
   <div class="dtl-Columns">
     <div class="dtl-Column dtl-Column-called">
       <div class="dtl-LastCalled_Outer" v-if="!pending(startTime)">
@@ -34,7 +36,7 @@
                 <!-- For this column, take the slice and see if this row is in there -->
                 <!-- {{ column * 10 }}, {{ (column + 1) * 10 }}<br> -->
                 <!-- {{ playerCards.slice(column * 10, (column + 1) * 10) }} -->
-                <span v-if="playerCards.slice(column * 10, (column + 1) * 10).indexOf(row) !== -1">x</span>
+                <!-- <span v-if="playerCards.slice(column * 10, (column + 1) * 10).indexOf(row) !== -1">x</span> -->
 
                 <!--
                 <input v-if="card[column][row] !== emptyValue" type="checkbox" id="{{ index }}-{{ row }}-{{ column }}" class="gm-Cards_Checkbox">
@@ -66,6 +68,51 @@ Array.prototype.randomInsert = function (item) {
   this.splice(desiredIndex, 0, item);
 };
 
+Array.prototype.sliceStep = function (from, to, step) {
+    if (from===null) from=0;
+    if (to===null) to=this.length;
+    if (!step) return this.slice(from, to);
+    var result = Array.prototype.slice.call(this, from, to);
+    if (step < 0) result.reverse();
+    step = Math.abs(step);
+    if (step > 1) {
+        var final = [];
+        for (var i = result.length - 1; i >= 0; i--) {
+            (i % step === 0) && final.push(result[i]);
+        };
+        final.reverse();
+        result = final;
+   }
+   return result;
+}
+
+Array.prototype.equals = function (array) {
+  // if the other array is a falsy value, return
+  if (!array) {
+    return false;
+  }
+
+  // compare lengths - can save a lot of time
+  if (this.length != array.length) {
+    return false;
+  }
+
+  for (var i = 0, l=this.length; i < l; i++) {
+    // Check if we have nested arrays
+    if (this[i] instanceof Array && array[i] instanceof Array) {
+      // recurse into the nested arrays
+      if (!this[i].equals(array[i])) {
+        return false;
+      }
+    }
+    else if (this[i] != array[i]) {
+      // Warning - two different object instances will never be equal: {x:20} != {x:20}
+      return false;
+    }
+  }
+  return true;
+}
+
 Math.seed = function(s) {
     return function() {
         s = Math.sin(s) * 10000;
@@ -74,6 +121,44 @@ Math.seed = function(s) {
 };
 
 Math.random = Math.seed(1);
+
+function assert(condition, message) {
+  if (!condition) {
+    message = message || "Assertion failed"
+
+    if (typeof Error !== "undefined") {
+      throw new Error(message)
+    }
+
+    throw message // Fallback
+  }
+}
+
+function intersect(a, b)
+{
+  a = a.slice(0)
+  b = b.slice(0)
+
+  a = a.sort((x, y) => x - y)
+  b = b.sort((x, y) => x - y)
+
+  var ai=0, bi=0;
+  var result = [];
+
+  while( ai < a.length && bi < b.length )
+  {
+     if      (a[ai] < b[bi] ){ ai++; }
+     else if (a[ai] > b[bi] ){ bi++; }
+     else /* they're equal */
+     {
+       result.push(a[ai]);
+       ai++;
+       bi++;
+     }
+  }
+
+  return result;
+}
 
 export default {
   data () {
@@ -226,7 +311,7 @@ export default {
     },
 
     playerCards () {
-      console.log('player_cards')
+      // console.log('player_cards')
 
       let cards = [
         [[], [], [], [], [], [], [], [], []],
@@ -282,8 +367,8 @@ export default {
       // We may have some card columns which are empty.
 
       // Now we need to populate the cards with the marks.
-      console.log(allChosenRows)
-      console.log(allChosenRows.length)
+      // console.log(allChosenRows)
+      // console.log(allChosenRows.length)
       return allChosenRows
     },
 
@@ -385,6 +470,95 @@ export default {
       }
 
       return cards
+    },
+
+    validatePlayerCards (cards) {
+      // Given an array of values, we should be able to determine whether this is a valid page or not.
+      const validPage = [
+         2, 11, 21, '', '', '', 64, '', 90,
+         5, 13, 23, '', 48, 56, '', '', '',
+         8, 14, 24, 32, '', '', '', 77, '',
+
+         3, '', '', 30, '', 51, 67, 70, '',
+        '', 17, '', 38, 41, 53, '', '', 88,
+        '', '', 26, '', 45, 55, 68, 75, '',
+
+        '', 15, '', '', 43, 50, 60, '', 81,
+        '', '', 27, 31, '', 52, 63, 78, '',
+         1, 18, '', 33, '', 54, 69, '', '',
+
+        '', 19, 22, 34, '', '', '', 71, 82,
+        '', '', 28, 37, 40, '', '', 73, 87,
+         6, '', '', '', 44, 57, 61, '', 89,
+
+        '', 12, '', '', 42, '', 62, 74, 80,
+        '', '', 20, 39, 49, 59, '', 76, '',
+         4, 16, '', '', '', '', 65, 79, 85,
+
+        '', 10, 25, 35, 46, '', '', '', 83,
+         7, '', 29, '', '', '', 66, 72, 84,
+         9, '', '', 36, 47, 58, '', '', 86,
+      ]
+
+      cards = validPage
+
+      // Does every row have 5 values?
+      for (let row = 1; row <= 18; row++) {
+        assert(cards.slice((row - 1) * 9, row * 9).filter(Number).length === 5, `Row ${row} does not have 5 items.`)
+      }
+
+      const column0 = cards.sliceStep(0, 162, 9).filter(Number)
+      const column1 = cards.sliceStep(1, 162, 9).filter(Number)
+      const column2 = cards.sliceStep(2, 162, 9).filter(Number)
+      const column3 = cards.sliceStep(3, 162, 9).filter(Number)
+      const column4 = cards.sliceStep(4, 162, 9).filter(Number)
+      const column5 = cards.sliceStep(5, 162, 9).filter(Number)
+      const column6 = cards.sliceStep(6, 162, 9).filter(Number)
+      const column7 = cards.sliceStep(7, 162, 9).filter(Number)
+      const column8 = cards.sliceStep(8, 162, 9).filter(Number)
+
+      // Does every column have the correct amount of values?
+      assert(column0.length === 9, "Column 1 does not have 9 items.")
+      assert(column1.length === 10, "Column 2 does not have 10 items.")
+      assert(column2.length === 10, "Column 3 does not have 10 items.")
+      assert(column3.length === 10, "Column 4 does not have 10 items.")
+      assert(column4.length === 10, "Column 5 does not have 10 items.")
+      assert(column5.length === 10, "Column 6 does not have 10 items.")
+      assert(column6.length === 10, "Column 7 does not have 10 items.")
+      assert(column7.length === 10, "Column 8 does not have 10 items.")
+      assert(column8.length === 11, "Column 9 does not have 11 items.")
+
+      // Does each column add up the correct number?
+      assert(column0.reduce((previous, current) => previous + current) == 45, "Column 1 does not add up to 45.")
+      assert(column1.reduce((previous, current) => previous + current) == 145, "Column 2 does not add up to 145.")
+      assert(column2.reduce((previous, current) => previous + current) == 245, "Column 3 does not add up to 245.")
+      assert(column3.reduce((previous, current) => previous + current) == 345, "Column 4 does not add up to 345.")
+      assert(column4.reduce((previous, current) => previous + current) == 445, "Column 5 does not add up to 445.")
+      assert(column5.reduce((previous, current) => previous + current) == 545, "Column 6 does not add up to 545.")
+      assert(column6.reduce((previous, current) => previous + current) == 645, "Column 7 does not add up to 645.")
+      assert(column7.reduce((previous, current) => previous + current) == 745, "Column 8 does not add up to 745.")
+      assert(column8.reduce((previous, current) => previous + current) == 935, "Column 9 does not add up to 935.")
+
+      // Are the values in each column valid?
+      assert(intersect(column0, this.range(1, 9)).length == 9, "Column 1 contains invalid values.")
+      assert(intersect(column1, this.range(10, 19)).length == 10, "Column 2 contains invalid values.")
+      assert(intersect(column2, this.range(20, 29)).length == 10, "Column 3 contains invalid values.")
+      assert(intersect(column3, this.range(30, 39)).length == 10, "Column 4 contains invalid values.")
+      assert(intersect(column4, this.range(40, 49)).length == 10, "Column 5 contains invalid values.")
+      assert(intersect(column5, this.range(50, 59)).length == 10, "Column 6 contains invalid values.")
+      assert(intersect(column6, this.range(60, 69)).length == 10, "Column 7 contains invalid values.")
+      assert(intersect(column7, this.range(70, 79)).length == 10, "Column 8 contains invalid values.")
+      assert(intersect(column8, this.range(80, 90)).length == 11, "Column 9 contains invalid values.")
+
+      // Are the numeric values in each column of each card in ascending order?
+      for (let card = 1; card <= 6; card++) {
+        for (let column = 1; column <= 9; column++) {
+          const cardColumn = cards.sliceStep((card - 1) * 27 + column - 1, card * 27, 9).filter(Number)
+          assert(cardColumn.equals(cardColumn.slice(0).sort((a, b) => a - b)), `Values of card ${card}, column ${column} are not in ascending order.`)
+        }
+      }
+
+      return true
     }
   },
 
